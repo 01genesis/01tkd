@@ -1,0 +1,1536 @@
+name: Compilar APK v6
+on:
+  push:
+    paths:
+      - '.github/workflows/compilar-v6.yml'
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Crear proyecto
+        run: |
+          mkdir -p app/src/main/java/com/example/taekwondo app/src/main/res/drawable-nodpi
+          cp splash.jpg app/src/main/res/drawable-nodpi/splash.jpg
+          # Icono de la app (cuadrito del launcher)
+          mkdir -p app/src/main/res/mipmap-mdpi app/src/main/res/mipmap-hdpi app/src/main/res/mipmap-xhdpi app/src/main/res/mipmap-xxhdpi app/src/main/res/mipmap-xxxhdpi
+          echo 'iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAIAAADYYG7QAAAEnklEQVR4nO2VTSh8bxTHn+feO8MYNwzGNeVlbmMohI2XTFkQQpTyS2IWxkIWIk2J5GVFNmhCKXkLCwsbIhmxMIgYE7qZTFMaUvKSMmHm+S+efvc/zPj/3n//zf2s7px7zj3f55zznAFAQEBAQEDgZyAI4v8VACH8aCJJ0of1r0ghSfKjVaPR4AeKov6mGl5KbGzsuxdTU1NTU1MKhQJ8Jvl3w2chCKK7u3txcfGjR2Nj48XFRVNTE/75RzvI9yEvL+/4+Hh4eNjf3/+dBxablpZmtVrNZnN2dvaHyN8FQRD4nHK5fHp6+vHxsaamxrcr9oMQzs7OIoRGR0c9O/iL1cIf4Sehrq7u9vaW4ziWZYHPKwYhlEqlERERDMMEBwcbDAaEkMPhaGho4L1JkqQoivjK9yiAEFIU5VnmzMzM9fV1hNDe3h7LsjKZTKFQ0DTNZ4F8vFwuV6lUCQkJ8fHxDMNoNBqlUgkA2NnZMRgMRqPx6urKMyVFUQghAABCyO12A492QAjf3t48nf38/DIyMrRabW1tLYTw5ubGZDLZbDabzXZ6espxnMPhcLlcn56PoiipVNrS0vL09IQQQgidnJyMj483Njaura0ZjUa1Wu1dD0+Lv7//yMjI4eGhXq/v6enZ2Nh4fn5GCL2+vo6NjclkMrFY/N81BhBC73awLMswDE3TDQ0NWNnR0ZHZbL6+vh4aGiopKRkcHOzr68PO5eXlc3Nz+fn5er3eYrFcXFxsb2/jqPn5eaVSSdN0XFycd8bvGlAIoZ+fHwAgOjp6dXX17Oyss7OTL0xQUFB7ezv6SldXV1FRkdPpxD8XFhb4xOHh4TqdzmQycRz35csXAABBED+25/Ak4ueqqqrLy8u2tja+wuHh4YmJifX19UajcW1traqqqqysDOvo7e0tKCiYn58/ODjo6OjIyMjA9xRTWlpqtVrHx8dxPfD9+LYUXjtFUQaDwW63p6Sk4JKkp6eXlpZqtVq73e5wOCorK7GnTqc7PDzc3NycmJjAlszMzN3d3ZeXF71eX1RUpNFoGIYBAEgkkuXlZYvFkpCQwGf0LQtCyDcyMjJSp9OZzeb9/f3Q0FAAgEgkomlaIpGoVCqDwdDa2op140WwsbGRk5MTEhJycHCgVqv5I1VUVExOTubm5orFYpqm+RoPDAw8PDwMDAzw6xd4rKJ308SybF5enkKhCAoKurq66u/vRwiRJOl2uxFCqampJSUlKysr+/v7uIRvb29SqdRoNGq1Wo7jdnd3m5ubt7e3RSKRy+Vyu91yuby6utpmsy0tLb2+vuLEbre7uLg4Pz//7u4OALC1tWUymZ6fn98JUigUSUlJISEhHMc9Pj6KRCKO43A8QghPFcuy2EhRlMvlwkuIJMnCwkKxWHx+fp6VlTUzM+N0OgEA+CR4tSiVyru7u/v7e5wL28PCwmQymdPpTE5Olkgk5+fnZrP539owDBMYGIifZTIZ8NhyH/DZ8qioqJiYGO+789mIYM+AgICAgABsCQsL83Z7t2q93362Lb65RTwH1DvK9wrwDPiJ/1GfKX/0C78SLiAgICAgICAg8Mf4B29eyJfgygnKAAAAAElFTkSuQmCC' | base64 -d > app/src/main/res/mipmap-mdpi/ic_launcher.png
+          echo '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' | base64 -d > app/src/main/res/mipmap-hdpi/ic_launcher.png
+          echo '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' | base64 -d > app/src/main/res/mipmap-xhdpi/ic_launcher.png
+          echo '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' | base64 -d > app/src/main/res/mipmap-xxhdpi/ic_launcher.png
+          echo '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' | base64 -d > app/src/main/res/mipmap-xxxhdpi/ic_launcher.png
+          cat > settings.gradle.kts <<'FIN_7Q'
+          pluginManagement {
+              repositories { google(); mavenCentral(); gradlePluginPortal() }
+          }
+          dependencyResolutionManagement {
+              repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+              repositories { google(); mavenCentral() }
+          }
+          rootProject.name = "Taekwondo"
+          include(":app")
+          FIN_7Q
+          cat > build.gradle.kts <<'FIN_7Q'
+          plugins {
+              id("com.android.application") version "8.5.2" apply false
+              id("org.jetbrains.kotlin.android") version "2.0.20" apply false
+              id("org.jetbrains.kotlin.plugin.compose") version "2.0.20" apply false
+          }
+          FIN_7Q
+          cat > gradle.properties <<'FIN_7Q'
+          org.gradle.jvmargs=-Xmx2g
+          android.useAndroidX=true
+          kotlin.code.style=official
+          FIN_7Q
+          cat > app/build.gradle.kts <<'FIN_7Q'
+          plugins {
+              id("com.android.application")
+              id("org.jetbrains.kotlin.android")
+              id("org.jetbrains.kotlin.plugin.compose")
+          }
+
+          android {
+              namespace = "com.example.taekwondo"
+              compileSdk = 34
+              defaultConfig {
+                  applicationId = "com.example.taekwondo"
+                  minSdk = 26
+                  targetSdk = 34
+                  versionCode = 1
+                  versionName = "1.0"
+              }
+              buildFeatures { compose = true }
+              compileOptions {
+                  sourceCompatibility = JavaVersion.VERSION_17
+                  targetCompatibility = JavaVersion.VERSION_17
+              }
+              kotlinOptions { jvmTarget = "17" }
+          }
+
+          dependencies {
+              implementation(platform("androidx.compose:compose-bom:2024.09.00"))
+              implementation("androidx.compose.ui:ui")
+              implementation("androidx.compose.foundation:foundation")
+              implementation("androidx.compose.material3:material3")
+              implementation("androidx.activity:activity-compose:1.9.2")
+              implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.5")
+              implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.5")
+              implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
+              implementation("com.google.android.gms:play-services-nearby:19.3.0")
+          }
+          FIN_7Q
+          cat > app/src/main/AndroidManifest.xml <<'FIN_7Q'
+          <?xml version="1.0" encoding="utf-8"?>
+          <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+              <uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30" />
+              <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" android:maxSdkVersion="30" />
+              <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+              <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+              <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" android:maxSdkVersion="28" />
+              <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" android:maxSdkVersion="32" />
+              <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE" />
+              <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+              <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
+              <uses-permission android:name="android.permission.NEARBY_WIFI_DEVICES" android:usesPermissionFlags="neverForLocation" />
+              <uses-permission android:name="android.permission.VIBRATE" />
+
+              <application
+                  android:label="TKD 01"
+                  android:icon="@mipmap/ic_launcher"
+                  android:roundIcon="@mipmap/ic_launcher"
+                  android:theme="@android:style/Theme.Material.NoActionBar">
+                  <activity
+                      android:name=".MainActivity"
+                      android:exported="true"
+                      android:screenOrientation="sensorLandscape">
+                      <intent-filter>
+                          <action android:name="android.intent.action.MAIN" />
+                          <category android:name="android.intent.category.LAUNCHER" />
+                      </intent-filter>
+                  </activity>
+              </application>
+          </manifest>
+          FIN_7Q
+          cat > app/src/main/java/com/example/taekwondo/Model.kt <<'FIN_7Q'
+          package com.example.taekwondo
+          
+          import android.os.SystemClock
+          import androidx.lifecycle.ViewModel
+          import org.json.JSONObject
+          import androidx.lifecycle.viewModelScope
+          import kotlinx.coroutines.Job
+          import kotlinx.coroutines.delay
+          import kotlinx.coroutines.flow.*
+          import kotlinx.coroutines.launch
+          
+          data class MatchConfig(
+              val redName: String = "ROJO",
+              val blueName: String = "AZUL",
+              val redColor: Long = 0xFFD32F2F,
+              val blueColor: Long = 0xFF1E3FD8,
+              val roundSeconds: Int = 120,
+              val restSeconds: Int = 60,
+              val rounds: Int = 3,
+              val maxFouls: Int = 5,
+              val maxPointDiff: Int = 15,   // diferencia máxima; 0 = desactivado
+              val matchNumber: Int = 1
+          )
+          
+          data class MatchState(
+              val red: Int = 0,
+              val blue: Int = 0,
+              val redFouls: Int = 0,
+              val blueFouls: Int = 0,
+              val redWon: Int = 0,
+              val blueWon: Int = 0,
+              val round: Int = 1,
+              val secondsLeft: Int = 120,
+              val running: Boolean = false,
+              val resting: Boolean = false,
+              val roundScores: List<Pair<Int, Int>> = emptyList(),
+              val winner: String? = null,
+              val drawn: Boolean = false,
+              val showWinnerScreen: Boolean = false,
+              val roundDrawn: Boolean = false,
+              /** Pantalla de sorteo del round: null = oculta, "RED"/"BLUE" = resultado del sorteo */
+              val showRoundDraw: String? = null
+          )
+          
+          data class SignalEvent(
+              val id: String,
+              val from: String,
+              val kind: String,
+              val red: Boolean,
+              val points: Int,
+              val at: Long,
+              val confirmed: Boolean = false
+          )
+          
+          class MatchViewModel : ViewModel() {
+              private val _config = MutableStateFlow(MatchConfig())
+              val config = _config.asStateFlow()
+          
+              private val _state = MutableStateFlow(MatchState())
+              val state = _state.asStateFlow()
+          
+              private val _buzz = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+              val buzz = _buzz.asSharedFlow()
+          
+              private val undo = ArrayDeque<MatchState>()
+              private var timer: Job? = null
+              private var winnerJob: Job? = null
+              private var drawJob: Job? = null
+          
+              val myId = (1000..9999).random().toString()
+              val peers = MutableStateFlow(0)
+              val peerIds = MutableStateFlow<List<String>>(emptyList())
+              private var link: NearbySync? = null
+              private val votes = mutableListOf<Vote>()
+              private val windowMs = 2200L
+          
+              val room = MutableStateFlow<Pair<String, Boolean>?>(null)
+              val hostLink = MutableStateFlow(false)
+              private var linkJob: Job? = null
+          
+              private val _signals = MutableStateFlow<List<SignalEvent>>(emptyList())
+              val signals = _signals.asStateFlow()
+          
+              private val _lastConfirm = MutableSharedFlow<String>(extraBufferCapacity = 1)
+              val lastConfirm = _lastConfirm.asSharedFlow()
+          
+              fun attachLink(l: NearbySync, code: String, isHost: Boolean) {
+                  linkJob?.cancel()
+                  link = l
+                  room.value = code to isHost
+                  l.onReceive = { msg -> runCatching { handle(msg) } }
+                  linkJob = viewModelScope.launch {
+                      launch { l.peers.collect { peers.value = it } }
+                      launch { l.peerIds.collect { peerIds.value = it } }
+                      launch { l.hostConnected.collect { hostLink.value = it } }
+                  }
+              }
+          
+              fun detachLink() {
+                  linkJob?.cancel()
+                  link = null
+                  room.value = null
+                  peers.value = 0
+                  peerIds.value = emptyList()
+                  hostLink.value = false
+                  _signals.value = emptyList()
+              }
+          
+              private fun send(o: JSONObject) { link?.broadcast(o.toString()) }
+          
+              private fun vote(kind: String, red: Boolean, v: Int) {
+                  val now = SystemClock.elapsedRealtime()
+                  send(JSONObject().put("t", "vote").put("from", myId).put("k", kind).put("red", red).put("v", v))
+                  onVote(Vote(myId, kind, red, v, now))
+              }
+          
+              private fun onVote(x: Vote) {
+                  val now = SystemClock.elapsedRealtime()
+                  votes.removeAll { now - it.at > windowMs }
+                  votes.removeAll { it.from == x.from && it.kind == x.kind && it.red == x.red && it.v == x.v }
+                  votes.add(x)
+          
+                  pushSignal(SignalEvent("${x.from}-${x.at}", x.from, x.kind, x.red,
+                      if (x.kind == "P") x.v else 0, x.at, confirmed = false))
+          
+                  val need = if (peers.value == 0) 1 else 2
+                  val same = votes.filter { it.kind == x.kind && it.red == x.red && it.v == x.v }
+                  val uniqueFrom = same.map { it.from }.distinct()
+          
+                  if (uniqueFrom.size >= need) {
+                      votes.removeAll { it.kind == x.kind && it.red == x.red && it.v == x.v }
+                      _signals.update { list ->
+                          list.map { s ->
+                              if (s.kind == x.kind && s.red == x.red && s.points == x.v && !s.confirmed &&
+                                  uniqueFrom.contains(s.from)) s.copy(confirmed = true) else s
+                          }
+                      }
+                      if (x.kind == "P") doAdjust(x.red, x.v) else doFoul(x.red)
+          
+                      val side = if (x.red) "ROJO" else "AZUL"
+                      val msg = if (x.kind == "P") "+${x.v} $side  ✓${uniqueFrom.size}" else "FALTA $side  ✓${uniqueFrom.size}"
+                      viewModelScope.launch { _lastConfirm.emit(msg) }
+                  }
+              }
+          
+              private fun pushSignal(s: SignalEvent) {
+                  _signals.update { (listOf(s) + it).take(12) }
+                  viewModelScope.launch {
+                      delay(4500)
+                      _signals.update { list -> list.filter { it.id != s.id || it.confirmed } }
+                      delay(2500)
+                      _signals.update { list -> list.filter { it.id != s.id } }
+                  }
+              }
+          
+              private fun handle(msg: String) {
+                  val o = JSONObject(msg)
+                  when (o.getString("t")) {
+                      "vote" -> onVote(Vote(o.getString("from"), o.getString("k"), o.getBoolean("red"),
+                          o.getInt("v"), SystemClock.elapsedRealtime()))
+                      "adj" -> doAdjust(o.getBoolean("red"), o.getInt("v"))
+                      "undo" -> doUndo()
+                      "run" -> setRunning(o.getBoolean("on"))
+                      "cfg" -> applyConfig(configFromJson(o))
+                      "win" -> {
+                          val w = o.getString("w")
+                          val drawn = o.optBoolean("d", false)
+                          _state.update {
+                              it.copy(winner = w, drawn = drawn, running = false, showWinnerScreen = true)
+                          }
+                          startWinnerTimer()
+                      }
+                      "rdraw" -> {
+                          // Sorteo de round sincronizado desde otro teléfono
+                          val side = o.getString("w") // "RED" o "BLUE"
+                          applyRoundResult(redWins = side == "RED", roundDrawn = true, showDraw = true)
+                      }
+                  }
+              }
+          
+              fun saveConfig(c: MatchConfig) {
+                  applyConfig(c)
+                  if (room.value?.second == true) send(configToJson(c).put("t", "cfg"))
+              }
+          
+              fun applyConfig(c: MatchConfig) {
+                  timer?.cancel()
+                  winnerJob?.cancel()
+                  drawJob?.cancel()
+                  undo.clear()
+                  _config.value = c
+                  _state.value = MatchState(secondsLeft = c.roundSeconds)
+                  _signals.value = emptyList()
+                  onConfigChanged(c)
+              }
+          
+              var onConfigChanged: (MatchConfig) -> Unit = {}
+              private var restored = false
+          
+              fun restore(c: MatchConfig) {
+                  if (restored) return
+                  restored = true
+                  applyConfig(c)
+              }
+          
+              fun addPoints(isRed: Boolean, pts: Int) {
+                  if (pts > 0) vote("P", isRed, pts)
+                  else {
+                      doAdjust(isRed, pts)
+                      send(JSONObject().put("t", "adj").put("red", isRed).put("v", pts))
+                  }
+              }
+          
+              fun foul(isRed: Boolean) = vote("F", isRed, 0)
+          
+              private fun doAdjust(isRed: Boolean, pts: Int) {
+                  edit {
+                      if (isRed) copy(red = (red + pts).coerceAtLeast(0))
+                      else copy(blue = (blue + pts).coerceAtLeast(0))
+                  }
+                  checkPointGap()
+              }
+          
+              /** Si la diferencia de puntos alcanza el máximo configurado → gana el round. */
+              private fun checkPointGap() {
+                  val c = _config.value
+                  if (c.maxPointDiff <= 0) return
+                  val s = _state.value
+                  if (s.winner != null || s.resting || s.showRoundDraw != null) return
+                  val diff = s.red - s.blue
+                  when {
+                      diff >= c.maxPointDiff -> finishRoundByGap(redWins = true)
+                      -diff >= c.maxPointDiff -> finishRoundByGap(redWins = false)
+                  }
+              }
+          
+              private fun finishRoundByGap(redWins: Boolean) {
+                  timer?.cancel()
+                  applyRoundResult(redWins = redWins, roundDrawn = false, showDraw = false)
+              }
+          
+              private fun doFoul(isRed: Boolean) {
+                  edit {
+                      if (isRed) copy(red = (red - 1).coerceAtLeast(0), blue = blue + 1, redFouls = redFouls + 1)
+                      else copy(blue = (blue - 1).coerceAtLeast(0), red = red + 1, blueFouls = blueFouls + 1)
+                  }
+                  val s = _state.value
+                  val max = _config.value.maxFouls
+                  if (s.winner != null) return
+                  if (s.redFouls >= max) finishRoundByFoul(redLost = true)
+                  else if (s.blueFouls >= max) finishRoundByFoul(redLost = false)
+                  else checkPointGap()
+              }
+          
+              private fun finishRoundByFoul(redLost: Boolean) {
+                  timer?.cancel()
+                  applyRoundResult(redWins = !redLost, roundDrawn = false, showDraw = false)
+              }
+          
+              /**
+               * Aplica el resultado de un round (por tiempo, faltas, diferencia o sorteo)
+               * y decide si el combate termina o pasa a descanso.
+               */
+              private fun applyRoundResult(redWins: Boolean, roundDrawn: Boolean, showDraw: Boolean) {
+                  val c = _config.value
+                  val s = _state.value
+                  undo.clear()
+          
+                  val scores = s.roundScores + (s.red to s.blue)
+                  val rw = s.redWon + if (redWins) 1 else 0
+                  val bw = s.blueWon + if (!redWins) 1 else 0
+          
+                  val roundsLeft = c.rounds - s.round
+                  val matchOver = s.round >= c.rounds ||
+                      rw > bw + roundsLeft || bw > rw + roundsLeft
+          
+                  if (showDraw) {
+                      // Primero mostrar pantalla de sorteo; luego continuar
+                      _state.value = s.copy(
+                          redWon = rw, blueWon = bw, roundScores = scores,
+                          running = false, resting = false,
+                          roundDrawn = true, showRoundDraw = if (redWins) "RED" else "BLUE"
+                      )
+                      drawJob?.cancel()
+                      drawJob = viewModelScope.launch {
+                          delay(3200)
+                          continueAfterRound(rw, bw, scores, matchOver, roundDrawn)
+                      }
+                  } else if (matchOver) {
+                      var matchDrawn = false
+                      val w = when {
+                          rw > bw -> "RED"
+                          bw > rw -> "BLUE"
+                          else -> { matchDrawn = true; listOf("RED", "BLUE").random() }
+                      }
+                      _state.value = s.copy(
+                          redWon = rw, blueWon = bw, roundScores = scores,
+                          running = false, resting = false,
+                          winner = w, drawn = matchDrawn, showWinnerScreen = true, roundDrawn = roundDrawn
+                      )
+                      send(JSONObject().put("t", "win").put("w", w).put("d", matchDrawn))
+                      startWinnerTimer()
+                  } else {
+                      _state.value = s.copy(
+                          redWon = rw, blueWon = bw, roundScores = scores,
+                          resting = true, running = true,
+                          secondsLeft = c.restSeconds, roundDrawn = roundDrawn, showRoundDraw = null
+                      )
+                      runTimer()
+                  }
+              }
+          
+              private fun continueAfterRound(
+                  rw: Int, bw: Int, scores: List<Pair<Int, Int>>,
+                  matchOver: Boolean, roundDrawn: Boolean
+              ) {
+                  val c = _config.value
+                  val s = _state.value
+                  if (matchOver) {
+                      var matchDrawn = false
+                      val w = when {
+                          rw > bw -> "RED"
+                          bw > rw -> "BLUE"
+                          else -> { matchDrawn = true; listOf("RED", "BLUE").random() }
+                      }
+                      _state.value = s.copy(
+                          showRoundDraw = null,
+                          winner = w, drawn = matchDrawn, showWinnerScreen = true,
+                          running = false, resting = false, roundDrawn = roundDrawn
+                      )
+                      send(JSONObject().put("t", "win").put("w", w).put("d", matchDrawn))
+                      startWinnerTimer()
+                  } else {
+                      _state.value = s.copy(
+                          showRoundDraw = null,
+                          resting = true, running = true,
+                          secondsLeft = c.restSeconds, roundDrawn = roundDrawn
+                      )
+                      runTimer()
+                  }
+              }
+          
+              fun undoLast() {
+                  doUndo()
+                  send(JSONObject().put("t", "undo"))
+              }
+          
+              private fun doUndo() {
+                  val p = undo.removeLastOrNull() ?: return
+                  _state.update {
+                      it.copy(
+                          red = p.red, blue = p.blue, redFouls = p.redFouls, blueFouls = p.blueFouls,
+                          winner = p.winner, drawn = p.drawn, showWinnerScreen = false,
+                          roundDrawn = p.roundDrawn, showRoundDraw = null
+                      )
+                  }
+              }
+          
+              fun toggleTimer() {
+                  val on = !_state.value.running
+                  setRunning(on)
+                  send(JSONObject().put("t", "run").put("on", on))
+              }
+          
+              private fun setRunning(on: Boolean) {
+                  val s = _state.value
+                  if (s.winner != null || s.running == on || s.showRoundDraw != null) return
+                  if (!on) {
+                      timer?.cancel()
+                      _state.update { it.copy(running = false) }
+                  } else {
+                      _state.update { it.copy(running = true) }
+                      runTimer()
+                  }
+              }
+          
+              private fun edit(block: MatchState.() -> MatchState) {
+                  val s = _state.value
+                  if (s.winner != null || s.showRoundDraw != null) return
+                  undo.addLast(s)
+                  if (undo.size > 50) undo.removeFirst()
+                  _state.value = s.block()
+              }
+          
+              private fun runTimer() {
+                  timer?.cancel()
+                  timer = viewModelScope.launch {
+                      while (true) {
+                          delay(1000)
+                          val cur = _state.updateAndGet { it.copy(secondsLeft = it.secondsLeft - 1) }
+                          if (cur.secondsLeft <= 0) {
+                              _buzz.tryEmit(Unit)
+                              if (cur.resting) startNextRound() else endRound()
+                              break
+                          }
+                      }
+                  }
+              }
+          
+              /** Fin de round por tiempo. Empate de puntos → sorteo visible. */
+              private fun endRound() {
+                  val s = _state.value
+                  when {
+                      s.red > s.blue -> applyRoundResult(redWins = true, roundDrawn = false, showDraw = false)
+                      s.blue > s.red -> applyRoundResult(redWins = false, roundDrawn = false, showDraw = false)
+                      else -> {
+                          // Empate → sorteo
+                          val redWins = listOf(true, false).random()
+                          val side = if (redWins) "RED" else "BLUE"
+                          send(JSONObject().put("t", "rdraw").put("w", side))
+                          applyRoundResult(redWins = redWins, roundDrawn = true, showDraw = true)
+                      }
+                  }
+              }
+          
+              private fun startWinnerTimer() {
+                  winnerJob?.cancel()
+                  winnerJob = viewModelScope.launch {
+                      delay(4000)
+                      _state.update { it.copy(showWinnerScreen = false) }
+                  }
+              }
+          
+              fun dismissWinnerAndReset() {
+                  winnerJob?.cancel()
+                  drawJob?.cancel()
+                  applyConfig(_config.value)
+              }
+          
+              private fun startNextRound() {
+                  val c = _config.value
+                  _state.update {
+                      it.copy(
+                          round = it.round + 1,
+                          red = 0, blue = 0,
+                          redFouls = 0, blueFouls = 0,
+                          resting = false, running = false,
+                          secondsLeft = c.roundSeconds,
+                          roundDrawn = false, showRoundDraw = null
+                      )
+                  }
+              }
+          }
+          
+          private data class Vote(val from: String, val kind: String, val red: Boolean, val v: Int, val at: Long)
+          
+          private fun configToJson(c: MatchConfig) = JSONObject()
+              .put("rn", c.redName).put("bn", c.blueName).put("rc", c.redColor).put("bc", c.blueColor)
+              .put("rs", c.roundSeconds).put("ts", c.restSeconds).put("r", c.rounds)
+              .put("f", c.maxFouls).put("pd", c.maxPointDiff).put("m", c.matchNumber)
+          
+          private fun configFromJson(o: JSONObject) = MatchConfig(
+              redName = o.getString("rn"), blueName = o.getString("bn"),
+              redColor = o.getLong("rc"), blueColor = o.getLong("bc"),
+              roundSeconds = o.getInt("rs"), restSeconds = o.getInt("ts"),
+              rounds = o.getInt("r"), maxFouls = o.getInt("f"),
+              maxPointDiff = o.optInt("pd", 15), matchNumber = o.getInt("m")
+          )
+          FIN_7Q
+          cat > app/src/main/java/com/example/taekwondo/Screens.kt <<'FIN_7Q'
+          package com.example.taekwondo
+          
+          import androidx.compose.animation.core.*
+          import androidx.compose.foundation.*
+          import androidx.compose.foundation.layout.*
+          import androidx.compose.foundation.rememberScrollState
+          import androidx.compose.foundation.shape.CircleShape
+          import androidx.compose.foundation.shape.RoundedCornerShape
+          import androidx.compose.foundation.text.KeyboardOptions
+          import androidx.compose.material3.*
+          import androidx.compose.runtime.*
+          import androidx.compose.ui.Alignment
+          import androidx.compose.ui.Modifier
+          import androidx.compose.ui.draw.clip
+          import androidx.compose.ui.draw.shadow
+          import androidx.compose.ui.graphics.Brush
+          import androidx.compose.ui.graphics.Color
+          import androidx.compose.runtime.saveable.rememberSaveable
+          import androidx.compose.ui.graphics.Shadow
+          import androidx.compose.ui.layout.ContentScale
+          import androidx.compose.ui.res.painterResource
+          import androidx.compose.ui.text.TextStyle
+          import androidx.compose.ui.text.font.FontWeight
+          import kotlinx.coroutines.delay
+          import androidx.compose.ui.text.input.KeyboardType
+          import androidx.compose.ui.text.style.TextAlign
+          import androidx.compose.ui.unit.dp
+          import androidx.compose.ui.unit.sp
+          
+          private val Yellow = Color(0xFFFFE600)
+          private val StatGreen = Color(0xFF39FF14)
+          private val PendingOrange = Color(0xFFFFB74D)
+          private val ConfirmGreen = Color(0xFF69F0AE)
+          private val DarkBg = Color(0xFF07070B)
+          private val CardBg = Color(0xFF12121A)
+          private val Muted = Color(0xFF78909C)
+          
+          @Composable
+          fun App(vm: MatchViewModel, onCreateRoom: (String) -> Unit, onJoinRoom: (String) -> Unit, onLeave: () -> Unit) {
+              var showSplash by rememberSaveable { mutableStateOf(true) }
+              LaunchedEffect(Unit) { delay(2800); showSplash = false }
+              if (showSplash) { SplashScreen { showSplash = false }; return }
+              var page by remember { mutableStateOf("board") }
+              val cfg by vm.config.collectAsState()
+              val room by vm.room.collectAsState()
+              when (page) {
+                  "settings" -> SettingsScreen(cfg, canShare = room?.second == true,
+                      onSave = { vm.saveConfig(it); page = "board" }, onBack = { page = "board" })
+                  "connect" -> ConnectScreen(vm, onCreateRoom, onJoinRoom, onLeave) { page = "board" }
+                  else -> ScoreboardScreen(vm, onSettings = { page = "settings" }, onConnect = { page = "connect" })
+              }
+          }
+          
+          @Composable
+          fun ConnectScreen(
+              vm: MatchViewModel, onCreate: (String) -> Unit, onJoin: (String) -> Unit,
+              onLeave: () -> Unit, onBack: () -> Unit
+          ) {
+              val room by vm.room.collectAsState()
+              val peers by vm.peers.collectAsState()
+              val peerIds by vm.peerIds.collectAsState()
+              val hostLink by vm.hostLink.collectAsState()
+              var code by remember { mutableStateOf("") }
+              val r = room
+          
+              Column(
+                  Modifier.fillMaxSize().background(DarkBg).verticalScroll(rememberScrollState()).padding(20.dp),
+                  verticalArrangement = Arrangement.spacedBy(14.dp)
+              ) {
+                  Text("Conexión", color = Color.White, fontSize = 26.sp, fontWeight = FontWeight.Bold)
+                  Text("Tu ID: ${vm.myId}", color = Yellow, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+          
+                  if (r != null) {
+                      val (rc, host) = r
+                      Card(
+                          colors = CardDefaults.cardColors(containerColor = CardBg),
+                          shape = RoundedCornerShape(18.dp),
+                          modifier = Modifier.fillMaxWidth()
+                      ) {
+                          Column(Modifier.padding(22.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                              Text(
+                                  if (host) "Jefe de sala" else "Participante",
+                                  color = Muted, fontSize = 13.sp
+                              )
+                              Text(rc, color = Yellow, fontSize = 68.sp, fontWeight = FontWeight.Black)
+                              Spacer(Modifier.height(14.dp))
+                              ConnectionDots(3, peers + 1)
+                              Spacer(Modifier.height(8.dp))
+                              Text(
+                                  "${peers + 1} dispositivo${if (peers + 1 != 1) "s" else ""}" +
+                                      when {
+                                          host -> ""
+                                          hostLink -> " · jefe OK"
+                                          else -> " · buscando jefe…"
+                                      },
+                                  color = Color.White, fontSize = 14.sp
+                              )
+                              if (peerIds.isNotEmpty()) {
+                                  Text("Otros: ${peerIds.joinToString(", ")}", color = Muted, fontSize = 12.sp)
+                              }
+                          }
+                      }
+                      Text(
+                          "Con varios teléfonos hacen falta mínimo 2 señales iguales para sumar.",
+                          color = Muted, fontSize = 13.sp
+                      )
+                      OutlinedButton(
+                          onClick = onLeave,
+                          modifier = Modifier.fillMaxWidth().height(48.dp),
+                          shape = RoundedCornerShape(12.dp),
+                          colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFFFF5252))
+                      ) { Text("Salir de la sala") }
+                  } else {
+                      Button(
+                          onClick = { onCreate((1000..9999).random().toString()) },
+                          modifier = Modifier.fillMaxWidth().height(54.dp),
+                          shape = RoundedCornerShape(14.dp),
+                          colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF5C6BC0))
+                      ) { Text("Crear sala (soy el jefe)", fontSize = 16.sp, fontWeight = FontWeight.Bold) }
+          
+                      Text("— o entra con el código del jefe —", color = Muted, fontSize = 13.sp,
+                          modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
+          
+                      OutlinedTextField(
+                          code, { code = it.filter { ch -> ch.isDigit() }.take(4) },
+                          label = { Text("Código de 4 dígitos") },
+                          singleLine = true,
+                          keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                          modifier = Modifier.fillMaxWidth(),
+                          shape = RoundedCornerShape(12.dp),
+                          colors = OutlinedTextFieldDefaults.colors(
+                              focusedBorderColor = Yellow, focusedLabelColor = Yellow, cursorColor = Yellow
+                          )
+                      )
+                      Button(
+                          onClick = { onJoin(code) },
+                          enabled = code.length == 4,
+                          modifier = Modifier.fillMaxWidth().height(54.dp),
+                          shape = RoundedCornerShape(14.dp)
+                      ) { Text("Unirme a la sala", fontSize = 16.sp, fontWeight = FontWeight.Bold) }
+                  }
+                  OutlinedButton(
+                      onClick = onBack,
+                      modifier = Modifier.fillMaxWidth().height(48.dp),
+                      shape = RoundedCornerShape(12.dp)
+                  ) { Text("Volver al marcador") }
+              }
+          }
+          
+          @Composable
+          private fun ConnectionDots(totalExpected: Int, connectedCount: Int) {
+              val ok = connectedCount >= 2
+              Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
+                  for (i in 0 until totalExpected) {
+                      val filled = i < connectedCount
+                      Box(
+                          Modifier.padding(horizontal = 7.dp).size(18.dp).clip(CircleShape)
+                              .background(
+                                  when {
+                                      filled && ok -> Yellow
+                                      filled -> Color(0xFFFFC107)
+                                      else -> Color(0xFF2A2A35)
+                                  }
+                              )
+                              .border(1.dp, if (filled) Color.White.copy(0.45f) else Color(0xFF3A3A48), CircleShape)
+                      )
+                  }
+                  Spacer(Modifier.width(12.dp))
+                  Text(
+                      when {
+                          connectedCount >= 3 -> "3 conectados ✓"
+                          connectedCount == 2 -> "2 conectados"
+                          connectedCount == 1 -> "Solo este"
+                          else -> "Sin conexión"
+                      },
+                      color = if (ok) Yellow else Muted,
+                      fontWeight = FontWeight.Bold,
+                      fontSize = 13.sp
+                  )
+              }
+          }
+          
+          private fun clock(sec: Int) = "%d:%02d".format(sec / 60, sec % 60)
+          
+          @Composable
+          fun ScoreboardScreen(vm: MatchViewModel, onSettings: () -> Unit, onConnect: () -> Unit) {
+              val s by vm.state.collectAsState()
+              val c by vm.config.collectAsState()
+              val peers by vm.peers.collectAsState()
+              val room by vm.room.collectAsState()
+              val signals by vm.signals.collectAsState()
+          
+              var confirmMsg by remember { mutableStateOf<String?>(null) }
+              LaunchedEffect(Unit) {
+                  vm.lastConfirm.collect { msg ->
+                      confirmMsg = msg
+                      delay(1800)
+                      confirmMsg = null
+                  }
+              }
+          
+              Box(Modifier.fillMaxSize().background(Color.Black)) {
+                  Column(Modifier.fillMaxSize()) {
+                      // Top bar
+                      Row(
+                          Modifier.fillMaxWidth().background(Color(0xFF0A0A10))
+                              .padding(horizontal = 10.dp, vertical = 5.dp),
+                          verticalAlignment = Alignment.CenterVertically
+                      ) {
+                          Text(
+                              if (s.resting) "DESCANSO" else "R${s.round}/${c.rounds}",
+                              color = if (s.resting) Color(0xFF80CBC4) else Color.White,
+                              fontWeight = FontWeight.Bold, fontSize = 14.sp
+                          )
+                          if (s.roundDrawn && s.resting) {
+                              Spacer(Modifier.width(6.dp))
+                              Text("· round por sorteo", color = Yellow, fontSize = 11.sp)
+                          }
+                          Spacer(Modifier.width(8.dp))
+                          MiniConnectionDots(if (room != null) peers + 1 else 0)
+                          Spacer(Modifier.width(6.dp))
+                          Text(
+                              room?.let { (rc, host) -> "$rc${if (host) " ★" else ""} · ${peers + 1}" } ?: "offline",
+                              color = Muted, fontSize = 11.sp, modifier = Modifier.weight(1f)
+                          )
+                          TextButton(onClick = onConnect, contentPadding = PaddingValues(horizontal = 8.dp)) {
+                              Text("Conexión", fontSize = 12.sp)
+                          }
+                          TextButton(onClick = onSettings, enabled = !s.running, contentPadding = PaddingValues(horizontal = 8.dp)) {
+                              Text("Ajustes", fontSize = 12.sp)
+                          }
+                      }
+          
+                      Row(Modifier.weight(1f).fillMaxWidth()) {
+                          SidePanel(Modifier.weight(1f), c.redName, Color(c.redColor), s.red, s.redFouls, s.redWon, c.maxFouls,
+                              { vm.addPoints(true, it) }, { vm.foul(true) }, s.winner == null && !s.resting)
+                          CenterPanel(c.rounds, s, vm, Color(c.redColor), Color(c.blueColor), signals)
+                          SidePanel(Modifier.weight(1f), c.blueName, Color(c.blueColor), s.blue, s.blueFouls, s.blueWon, c.maxFouls,
+                              { vm.addPoints(false, it) }, { vm.foul(false) }, s.winner == null && !s.resting)
+                      }
+                  }
+          
+                  confirmMsg?.let { msg ->
+                      Box(
+                          Modifier.align(Alignment.TopCenter).padding(top = 48.dp)
+                              .shadow(10.dp, RoundedCornerShape(10.dp))
+                              .clip(RoundedCornerShape(10.dp))
+                              .background(ConfirmGreen)
+                              .padding(horizontal = 20.dp, vertical = 9.dp)
+                      ) {
+                          Text(msg, color = Color.Black, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                      }
+                  }
+          
+                  // Sorteo visible del round
+                  s.showRoundDraw?.let { side ->
+                      RoundDrawOverlay(
+                          name = if (side == "RED") c.redName else c.blueName,
+                          color = Color(if (side == "RED") c.redColor else c.blueColor)
+                      )
+                  }
+          
+                  if (s.showWinnerScreen && s.winner != null) {
+                      WinnerOverlay(
+                          name = if (s.winner == "RED") c.redName else c.blueName,
+                          color = Color(if (s.winner == "RED") c.redColor else c.blueColor),
+                          drawn = s.drawn,
+                          onDismiss = { vm.dismissWinnerAndReset() }
+                      )
+                  }
+              }
+          }
+          
+          
+          @Composable
+          private fun RoundDrawOverlay(name: String, color: Color) {
+              val infinite = rememberInfiniteTransition(label = "draw")
+              val pulse by infinite.animateFloat(
+                  0.92f, 1.08f,
+                  infiniteRepeatable(tween(500, easing = FastOutSlowInEasing), RepeatMode.Reverse),
+                  label = "pulse"
+              )
+              Box(
+                  Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.92f)),
+                  contentAlignment = Alignment.Center
+              ) {
+                  Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                      Text(
+                          "SORTEO",
+                          color = Yellow,
+                          fontSize = 22.sp,
+                          fontWeight = FontWeight.Bold,
+                          letterSpacing = 12.sp
+                      )
+                      Spacer(Modifier.height(8.dp))
+                      Text(
+                          "Empate en el round",
+                          color = Color.White.copy(0.7f),
+                          fontSize = 14.sp
+                      )
+                      Spacer(Modifier.height(20.dp))
+                      Box(
+                          Modifier
+                              .size((120 * pulse).dp)
+                              .clip(CircleShape)
+                              .background(color)
+                              .border(3.dp, Yellow, CircleShape),
+                          contentAlignment = Alignment.Center
+                      ) {
+                          Text("★", color = Color.White, fontSize = 36.sp)
+                      }
+                      Spacer(Modifier.height(18.dp))
+                      Text(
+                          "GANA EL ROUND",
+                          color = Color.White.copy(0.85f),
+                          fontSize = 16.sp,
+                          fontWeight = FontWeight.Bold,
+                          letterSpacing = 4.sp
+                      )
+                      Spacer(Modifier.height(6.dp))
+                      Text(
+                          name,
+                          color = color,
+                          fontSize = 42.sp,
+                          fontWeight = FontWeight.Black,
+                          style = TextStyle(shadow = Shadow(Color.Black, blurRadius = 12f))
+                      )
+                  }
+              }
+          }
+          
+          @Composable
+          private fun WinnerOverlay(name: String, color: Color, drawn: Boolean, onDismiss: () -> Unit) {
+              Box(
+                  Modifier.fillMaxSize().background(color).clickable { onDismiss() },
+                  contentAlignment = Alignment.Center
+              ) {
+                  Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                      Text("GANADOR", color = Color.White.copy(0.9f), fontSize = 26.sp,
+                          fontWeight = FontWeight.Bold, letterSpacing = 10.sp)
+                      Spacer(Modifier.height(10.dp))
+                      Text(
+                          name, color = Color.White, fontSize = 68.sp, fontWeight = FontWeight.Black,
+                          style = TextStyle(shadow = Shadow(Color.Black.copy(0.45f), blurRadius = 18f)),
+                          modifier = Modifier.padding(horizontal = 16.dp),
+                          textAlign = TextAlign.Center
+                      )
+                      if (drawn) {
+                          Spacer(Modifier.height(14.dp))
+                          Text("Empate · ganador por sorteo", color = Color.White.copy(0.8f), fontSize = 15.sp)
+                      }
+                      Spacer(Modifier.height(28.dp))
+                      Text("Toca para continuar", color = Color.White.copy(0.45f), fontSize = 12.sp)
+                  }
+              }
+          }
+          
+          @Composable
+          private fun MiniConnectionDots(connectedCount: Int) {
+              Row(verticalAlignment = Alignment.CenterVertically) {
+                  for (i in 0 until 3) {
+                      Box(
+                          Modifier.padding(end = 3.dp).size(8.dp).clip(CircleShape)
+                              .background(if (i < connectedCount) Yellow else Color(0xFF2E2E3A))
+                      )
+                  }
+              }
+          }
+          
+          @Composable
+          private fun SidePanel(
+              modifier: Modifier, name: String, color: Color, score: Int, fouls: Int, won: Int, maxFouls: Int,
+              onPoints: (Int) -> Unit, onFoul: () -> Unit, enabled: Boolean
+          ) {
+              Column(
+                  modifier.fillMaxHeight().background(color).padding(horizontal = 7.dp, vertical = 8.dp),
+                  horizontalAlignment = Alignment.CenterHorizontally
+              ) {
+                  Text(name, color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold, maxLines = 1)
+                  Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
+                      Text(
+                          "$score", color = Color.White, fontSize = 104.sp, fontWeight = FontWeight.Black,
+                          style = TextStyle(shadow = Shadow(Color.Black.copy(0.35f), blurRadius = 10f))
+                      )
+                  }
+                  // Botones +1..+5
+                  Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(3.dp)) {
+                      for (p in 1..5) {
+                          SmallBtn("+$p", Modifier.weight(1f), enabled) { onPoints(p) }
+                      }
+                  }
+                  Spacer(Modifier.height(5.dp))
+                  Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(3.dp)) {
+                      SmallBtn("−1", Modifier.weight(1f), enabled) { onPoints(-1) }
+                      SmallBtn("FALTA", Modifier.weight(2f), enabled) { onFoul() }
+                  }
+                  Spacer(Modifier.height(8.dp))
+                  // Stats con barra de faltas visual
+                  Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+                      Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                          Text("GAM-JEOM", color = Color.White.copy(0.9f), fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                          Text("$fouls", color = Color.White, fontSize = 22.sp, fontWeight = FontWeight.Bold)
+                          // Mini barra de progreso de faltas
+                          Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                              repeat(maxFouls.coerceAtMost(8)) { i ->
+                                  Box(
+                                      Modifier.size(width = 8.dp, height = 4.dp)
+                                          .background(
+                                              if (i < fouls) Color.White else Color.Black.copy(0.35f),
+                                              RoundedCornerShape(1.dp)
+                                          )
+                                  )
+                              }
+                          }
+                      }
+                      Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                          Text("ROUNDS", color = Color.White.copy(0.9f), fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                          Text("$won", color = StatGreen, fontSize = 22.sp, fontWeight = FontWeight.Bold)
+                      }
+                  }
+              }
+          }
+          
+          @Composable
+          private fun CenterPanel(
+              totalRounds: Int, s: MatchState, vm: MatchViewModel,
+              redColor: Color, blueColor: Color, signals: List<SignalEvent>
+          ) {
+              Column(
+                  Modifier.width(170.dp).fillMaxHeight().background(Color(0xFF06060A)).padding(6.dp),
+                  horizontalAlignment = Alignment.CenterHorizontally,
+                  verticalArrangement = Arrangement.SpaceBetween
+              ) {
+                  RoundsStrip(totalRounds, s, redColor, blueColor)
+          
+                  Box(
+                      Modifier
+                          .border(2.5.dp, Yellow, RoundedCornerShape(10.dp))
+                          .background(Color(0xFF0E0E14), RoundedCornerShape(10.dp))
+                          .padding(horizontal = 14.dp, vertical = 7.dp)
+                  ) {
+                      Text(clock(s.secondsLeft), color = Color.White, fontSize = 34.sp, fontWeight = FontWeight.Bold)
+                  }
+          
+                  Button(
+                      onClick = { vm.toggleTimer() },
+                      Modifier.fillMaxWidth().height(44.dp),
+                      enabled = s.winner == null,
+                      shape = RoundedCornerShape(11.dp),
+                      colors = ButtonDefaults.buttonColors(
+                          containerColor = if (s.running) Color(0xFFE65100) else Color(0xFF2E7D32)
+                      )
+                  ) {
+                      Text(if (s.running) "PAUSAR" else "INICIAR", fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                  }
+          
+                  OutlinedButton(
+                      onClick = { vm.undoLast() },
+                      Modifier.fillMaxWidth().height(36.dp),
+                      shape = RoundedCornerShape(10.dp),
+                      contentPadding = PaddingValues(0.dp)
+                  ) { Text("Deshacer", fontSize = 12.sp) }
+          
+                  SignalsPanel(signals)
+              }
+          }
+          
+          @Composable
+          private fun SignalsPanel(signals: List<SignalEvent>) {
+              Column(
+                  Modifier.fillMaxWidth().heightIn(min = 52.dp, max = 96.dp)
+                      .background(CardBg, RoundedCornerShape(9.dp)).padding(6.dp)
+              ) {
+                  Text("SEÑALES", color = Yellow, fontSize = 9.sp, fontWeight = FontWeight.Bold)
+                  if (signals.isEmpty()) {
+                      Text("—", color = Color(0xFF3A3A48), fontSize = 11.sp)
+                  } else {
+                      signals.take(4).forEach { sig ->
+                          val side = if (sig.red) "R" else "A"
+                          val txt = if (sig.kind == "P") "${sig.from} +${sig.points}$side" else "${sig.from} F$side"
+                          Text(
+                              txt + if (sig.confirmed) " ✓" else " …",
+                              color = if (sig.confirmed) ConfirmGreen else PendingOrange,
+                              fontSize = 11.sp, fontWeight = FontWeight.Bold, maxLines = 1
+                          )
+                      }
+                  }
+              }
+          }
+          
+          @Composable
+          private fun SmallBtn(text: String, modifier: Modifier, enabled: Boolean, onClick: () -> Unit) {
+              Button(
+                  onClick = onClick,
+                  modifier = modifier.height(38.dp),
+                  enabled = enabled,
+                  contentPadding = PaddingValues(0.dp),
+                  shape = RoundedCornerShape(8.dp),
+                  colors = ButtonDefaults.buttonColors(
+                      containerColor = Color.Black.copy(alpha = 0.42f),
+                      disabledContainerColor = Color.Black.copy(alpha = 0.2f)
+                  )
+              ) {
+                  Text(text, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+              }
+          }
+          
+          private val palette = listOf(
+              0xFFD32F2F, 0xFF1E3FD8, 0xFF2E7D32, 0xFFF9A825,
+              0xFF6A1B9A, 0xFF00838F, 0xFFEF6C00, 0xFF37474F
+          )
+          
+          @Composable
+          fun SettingsScreen(initial: MatchConfig, canShare: Boolean, onSave: (MatchConfig) -> Unit, onBack: () -> Unit) {
+              var c by remember { mutableStateOf(initial) }
+              Column(
+                  Modifier.fillMaxSize().background(DarkBg).verticalScroll(rememberScrollState()).padding(20.dp)
+              ) {
+                  Text("Ajustes", color = Color.White, fontSize = 24.sp, fontWeight = FontWeight.Bold)
+                  Spacer(Modifier.height(14.dp))
+          
+                  OutlinedTextField(c.redName, { c = c.copy(redName = it) }, label = { Text("Nombre rojo") },
+                      singleLine = true, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp), colors = fieldColors())
+                  ColorRow(c.redColor) { c = c.copy(redColor = it) }
+                  OutlinedTextField(c.blueName, { c = c.copy(blueName = it) }, label = { Text("Nombre azul") },
+                      singleLine = true, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp), colors = fieldColors())
+                  ColorRow(c.blueColor) { c = c.copy(blueColor = it) }
+          
+                  Spacer(Modifier.height(6.dp))
+                  Stepper("Tiempo del round (seg)", c.roundSeconds, 10, 10, 600) { c = c.copy(roundSeconds = it) }
+                  Stepper("Descanso entre rounds (seg)", c.restSeconds, 5, 0, 300) { c = c.copy(restSeconds = it) }
+                  Stepper("Número de rounds", c.rounds, 1, 1, 5) { c = c.copy(rounds = it) }
+                  Stepper("Faltas máximas (pierde el round)", c.maxFouls, 1, 1, 20) { c = c.copy(maxFouls = it) }
+                  Stepper("Diferencia máxima de puntos (0=off)", c.maxPointDiff, 1, 0, 30) { c = c.copy(maxPointDiff = it) }
+                  if (c.maxPointDiff > 0) {
+                      Text(
+                          "Si un lado saca ${c.maxPointDiff} puntos de diferencia, gana el round.",
+                          color = Color(0xFF78909C), fontSize = 12.sp
+                      )
+                  }
+          
+                  Spacer(Modifier.height(18.dp))
+                  Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                      OutlinedButton(onClick = onBack, modifier = Modifier.weight(1f).height(48.dp), shape = RoundedCornerShape(12.dp)) {
+                          Text("Cancelar")
+                      }
+                      Button(onClick = { onSave(c) }, modifier = Modifier.weight(1.3f).height(48.dp), shape = RoundedCornerShape(12.dp)) {
+                          Text(if (canShare) "Guardar y enviar" else "Guardar")
+                      }
+                  }
+              }
+          }
+          
+          @Composable
+          private fun fieldColors() = OutlinedTextFieldDefaults.colors(
+              focusedBorderColor = Yellow, focusedLabelColor = Yellow, cursorColor = Yellow,
+              focusedTextColor = Color.White, unfocusedTextColor = Color.White
+          )
+          
+          @Composable
+          private fun ColorRow(selected: Long, onPick: (Long) -> Unit) {
+              Row(Modifier.padding(vertical = 10.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                  palette.forEach { col ->
+                      Box(
+                          Modifier.size(34.dp).clip(CircleShape).background(Color(col))
+                              .border(if (col == selected) 3.dp else 0.dp, Color.White, CircleShape)
+                              .clickable { onPick(col) }
+                      )
+                  }
+              }
+          }
+          
+          @Composable
+          private fun Stepper(label: String, value: Int, step: Int, min: Int, max: Int, onChange: (Int) -> Unit) {
+              Row(Modifier.fillMaxWidth().padding(vertical = 5.dp), verticalAlignment = Alignment.CenterVertically) {
+                  Text(label, color = Color.White, modifier = Modifier.weight(1f), fontSize = 13.sp)
+                  Button(onClick = { onChange((value - step).coerceAtLeast(min)) },
+                      contentPadding = PaddingValues(horizontal = 14.dp), shape = RoundedCornerShape(8.dp)) { Text("−") }
+                  Text("$value", color = Color.White, fontSize = 18.sp, textAlign = TextAlign.Center,
+                      modifier = Modifier.width(56.dp), fontWeight = FontWeight.Bold)
+                  Button(onClick = { onChange((value + step).coerceAtMost(max)) },
+                      contentPadding = PaddingValues(horizontal = 14.dp), shape = RoundedCornerShape(8.dp)) { Text("+") }
+              }
+          }
+          
+          @Composable
+          fun SplashScreen(onDone: () -> Unit) {
+              Box(Modifier.fillMaxSize().background(Color(0xFF050508)).clickable { onDone() }) {
+                  runCatching {
+                      Image(
+                          painterResource(R.drawable.splash),
+                          contentDescription = null,
+                          contentScale = ContentScale.Crop,
+                          modifier = Modifier.fillMaxSize()
+                      )
+                  }
+                  Box(
+                      Modifier.fillMaxSize().background(
+                          Brush.verticalGradient(listOf(Color.Transparent, Color(0xE0050508)))
+                      )
+                  )
+                  Box(Modifier.fillMaxHeight().width(8.dp).background(Color(0xFFB71C1C)).align(Alignment.CenterStart))
+                  Box(Modifier.fillMaxHeight().width(8.dp).background(Color(0xFF0D47A1)).align(Alignment.CenterEnd))
+          
+                  Column(Modifier.align(Alignment.Center), horizontalAlignment = Alignment.CenterHorizontally) {
+                      Text(
+                          "TKD 01", color = Color.White, fontSize = 60.sp, fontWeight = FontWeight.Black,
+                          letterSpacing = 8.sp,
+                          style = TextStyle(shadow = Shadow(Color(0xFF9C27B0), blurRadius = 28f))
+                      )
+                      Spacer(Modifier.height(4.dp))
+                      Text(
+                          "ELECTRONIC", color = Color(0xFFCE93D8), fontSize = 16.sp,
+                          fontWeight = FontWeight.Medium, letterSpacing = 12.sp
+                      )
+                  }
+                  Text(
+                      "tocar para continuar", color = Color.White.copy(0.35f), fontSize = 11.sp,
+                      modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 22.dp)
+                  )
+              }
+          }
+          
+          @Composable
+          private fun RoundsStrip(total: Int, s: MatchState, red: Color, blue: Color) {
+              Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                  Text("ROUNDS", color = Muted, fontSize = 9.sp, fontWeight = FontWeight.Bold)
+                  Text("${s.redWon} – ${s.blueWon}", color = Yellow, fontSize = 22.sp, fontWeight = FontWeight.Bold)
+                  Spacer(Modifier.height(3.dp))
+                  for (i in 1..total) {
+                      val done = s.roundScores.getOrNull(i - 1)
+                      val bg = when {
+                          done == null -> Color(0xFF16161F)
+                          done.first > done.second -> red
+                          done.second > done.first -> blue
+                          else -> Color(0xFF455A64) // empate de puntos (se resolvió por sorteo)
+                      }
+                      val current = i == s.round && s.winner == null
+                      Row(
+                          Modifier.fillMaxWidth().padding(vertical = 1.5.dp)
+                              .background(bg, RoundedCornerShape(5.dp))
+                              .then(if (current) Modifier.border(1.5.dp, Yellow, RoundedCornerShape(5.dp)) else Modifier)
+                              .padding(horizontal = 6.dp, vertical = 2.dp),
+                          horizontalArrangement = Arrangement.SpaceBetween
+                      ) {
+                          Text("R$i", color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                          Text(
+                              when {
+                                  done != null -> "${done.first}-${done.second}"
+                                  current -> "${s.red}-${s.blue}"
+                                  else -> "–"
+                              },
+                              color = Color.White, fontSize = 11.sp
+                          )
+                      }
+                  }
+              }
+          }
+          FIN_7Q
+          cat > app/src/main/java/com/example/taekwondo/MainActivity.kt <<'FIN_7Q'
+          package com.example.taekwondo
+
+          import android.Manifest
+          import android.content.pm.ActivityInfo
+          import android.media.AudioManager
+          import android.media.ToneGenerator
+          import android.os.Build
+          import android.os.Bundle
+          import android.os.VibrationEffect
+          import android.os.Vibrator
+          import android.view.WindowManager
+          import androidx.activity.ComponentActivity
+          import androidx.activity.compose.setContent
+          import androidx.activity.result.contract.ActivityResultContracts
+          import androidx.activity.viewModels
+          import androidx.compose.material3.MaterialTheme
+          import androidx.compose.material3.darkColorScheme
+          import androidx.lifecycle.lifecycleScope
+          import kotlinx.coroutines.launch
+
+          class MainActivity : ComponentActivity() {
+              private val vm: MatchViewModel by viewModels()
+              private var sync: NearbySync? = null
+              private var pending: Pair<String, Boolean>? = null
+
+              private val permLauncher = registerForActivityResult(
+                  ActivityResultContracts.RequestMultiplePermissions()
+              ) { res -> if (res.values.all { it }) pending?.let { connect(it.first, it.second) } }
+
+              private fun neededPermissions(): Array<String> = when {
+                  Build.VERSION.SDK_INT >= 33 -> arrayOf(
+                      Manifest.permission.BLUETOOTH_ADVERTISE, Manifest.permission.BLUETOOTH_CONNECT,
+                      Manifest.permission.BLUETOOTH_SCAN, Manifest.permission.NEARBY_WIFI_DEVICES)
+                  Build.VERSION.SDK_INT >= 31 -> arrayOf(
+                      Manifest.permission.BLUETOOTH_ADVERTISE, Manifest.permission.BLUETOOTH_CONNECT,
+                      Manifest.permission.BLUETOOTH_SCAN, Manifest.permission.ACCESS_FINE_LOCATION)
+                  else -> arrayOf(Manifest.permission.ACCESS_FINE_LOCATION)
+              }
+
+              /** Pide permisos y entra a la sala (host = true crea la sala como jefe). */
+              private fun requestConnect(code: String, host: Boolean) {
+                  pending = code to host
+                  permLauncher.launch(neededPermissions())
+              }
+
+              private fun connect(code: String, host: Boolean) {
+                  val s = sync ?: NearbySync(this, vm.myId).also { sync = it }
+                  vm.attachLink(s, code, host)
+                  s.start(code, host)
+              }
+
+              private fun leave() {
+                  sync?.stop()
+                  vm.detachLink()
+              }
+
+              override fun onCreate(savedInstanceState: Bundle?) {
+                  super.onCreate(savedInstanceState)
+
+                  window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+                  requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
+
+                  val tone = ToneGenerator(AudioManager.STREAM_ALARM, 100)
+                  @Suppress("DEPRECATION")
+                  val vibrator = getSystemService(VIBRATOR_SERVICE) as Vibrator
+                  lifecycleScope.launch {
+                      vm.buzz.collect {
+                          tone.startTone(ToneGenerator.TONE_CDMA_ALERT_CALL_GUARD, 1500)
+                          vibrator.vibrate(VibrationEffect.createOneShot(800, VibrationEffect.DEFAULT_AMPLITUDE))
+                      }
+                  }
+
+                  val store = ConfigStore(this)
+                  vm.restore(store.load())
+                  vm.onConfigChanged = { store.save(it) }
+
+                  setContent {
+                      MaterialTheme(colorScheme = darkColorScheme()) {
+                          App(vm, onCreateRoom = { requestConnect(it, true) },
+                              onJoinRoom = { requestConnect(it, false) }, onLeave = { leave() })
+                      }
+                  }
+              }
+
+              override fun onDestroy() {
+                  super.onDestroy()
+                  sync?.stop()
+              }
+          }
+          FIN_7Q
+          cat > app/src/main/java/com/example/taekwondo/NearbySync.kt <<'FIN_7Q'
+          package com.example.taekwondo
+          
+          import android.content.Context
+          import android.os.Handler
+          import android.os.Looper
+          import com.google.android.gms.nearby.Nearby
+          import com.google.android.gms.nearby.connection.*
+          import kotlinx.coroutines.flow.MutableStateFlow
+          import kotlinx.coroutines.flow.StateFlow
+          
+          /**
+           * Conexión P2P entre teléfonos de la misma sala (código de 4 dígitos).
+           * Mejoras: reintento de discovery, aceptación más tolerante, lista de IDs visible.
+           */
+          class NearbySync(context: Context, private val myId: String) {
+              private val client = Nearby.getConnectionsClient(context)
+              private val connected = mutableSetOf<String>()
+              private val names = mutableMapOf<String, String>()
+              private val hostIds = mutableSetOf<String>()
+              private var code = ""
+              private var isHost = false
+              private val handler = Handler(Looper.getMainLooper())
+              private var restartDiscovery: Runnable? = null
+          
+              private val _peers = MutableStateFlow(0)
+              val peers: StateFlow<Int> = _peers
+              private val _peerIds = MutableStateFlow<List<String>>(emptyList())
+              val peerIds: StateFlow<List<String>> = _peerIds
+              private val _host = MutableStateFlow(false)
+              val hostConnected: StateFlow<Boolean> = _host
+              var onReceive: (String) -> Unit = {}
+          
+              private val service = "com.example.taekwondo.marcador"
+              private val strategy = Strategy.P2P_CLUSTER
+              private val myName get() = "$code:$myId:${if (isHost) "J" else "P"}"
+          
+              private fun refresh() {
+                  _peers.value = connected.size
+                  val ids = connected.mapNotNull { endpointId ->
+                      names[endpointId]?.split(":")?.getOrNull(1)
+                  }.sorted()
+                  _peerIds.value = ids
+                  _host.value = isHost || hostIds.isNotEmpty()
+              }
+          
+              private val payloadCb = object : PayloadCallback() {
+                  override fun onPayloadReceived(id: String, p: Payload) {
+                      p.asBytes()?.let { onReceive(String(it)) }
+                  }
+                  override fun onPayloadTransferUpdate(id: String, u: PayloadTransferUpdate) {}
+              }
+          
+              private val connCb = object : ConnectionLifecycleCallback() {
+                  override fun onConnectionInitiated(id: String, info: ConnectionInfo) {
+                      // Aceptar si es de la misma sala
+                      if (info.endpointName.startsWith("$code:")) {
+                          names[id] = info.endpointName
+                          client.acceptConnection(id, payloadCb)
+                      } else {
+                          client.rejectConnection(id)
+                      }
+                  }
+                  override fun onConnectionResult(id: String, r: ConnectionResolution) {
+                      if (r.status.isSuccess) {
+                          connected.add(id)
+                          if (names[id]?.endsWith(":J") == true) hostIds.add(id)
+                      } else {
+                          // Si falla, quitar para poder reintentar
+                          connected.remove(id)
+                          names.remove(id)
+                      }
+                      refresh()
+                  }
+                  override fun onDisconnected(id: String) {
+                      connected.remove(id)
+                      hostIds.remove(id)
+                      names.remove(id)
+                      refresh()
+                      // Reintentar discovery tras desconexión
+                      scheduleDiscoveryRestart()
+                  }
+              }
+          
+              private val discCb = object : EndpointDiscoveryCallback() {
+                  override fun onEndpointFound(id: String, info: DiscoveredEndpointInfo) {
+                      val p = info.endpointName.split(":")
+                      if (p.size == 3 && p[0] == code && id !in connected) {
+                          // El de ID menor inicia la conexión (evita cruces)
+                          // Si somos jefe, también podemos pedir a todos
+                          val theirId = p[1]
+                          if (myId < theirId || isHost) {
+                              runCatching {
+                                  client.requestConnection(myName, id, connCb)
+                              }
+                          }
+                      }
+                  }
+                  override fun onEndpointLost(id: String) {}
+              }
+          
+              private fun scheduleDiscoveryRestart() {
+                  restartDiscovery?.let { handler.removeCallbacks(it) }
+                  val r = Runnable {
+                      if (code.isEmpty()) return@Runnable
+                      runCatching {
+                          client.stopDiscovery()
+                          client.startDiscovery(
+                              service, discCb,
+                              DiscoveryOptions.Builder().setStrategy(strategy).build()
+                          )
+                      }
+                  }
+                  restartDiscovery = r
+                  handler.postDelayed(r, 2500)
+              }
+          
+              fun start(roomCode: String, host: Boolean) {
+                  stop()
+                  code = roomCode
+                  isHost = host
+                  refresh()
+                  runCatching {
+                      client.startAdvertising(
+                          myName, service, connCb,
+                          AdvertisingOptions.Builder().setStrategy(strategy).build()
+                      )
+                  }
+                  runCatching {
+                      client.startDiscovery(
+                          service, discCb,
+                          DiscoveryOptions.Builder().setStrategy(strategy).build()
+                      )
+                  }
+                  // Reintento periódico de discovery (Nearby a veces se queda quieto)
+                  scheduleDiscoveryRestart()
+                  handler.postDelayed({ scheduleDiscoveryRestart() }, 8000)
+              }
+          
+              fun stop() {
+                  restartDiscovery?.let { handler.removeCallbacks(it) }
+                  restartDiscovery = null
+                  runCatching {
+                      client.stopAdvertising()
+                      client.stopDiscovery()
+                      client.stopAllEndpoints()
+                  }
+                  connected.clear()
+                  hostIds.clear()
+                  names.clear()
+                  isHost = false
+                  code = ""
+                  refresh()
+              }
+          
+              fun broadcast(msg: String) {
+                  if (connected.isEmpty()) return
+                  runCatching {
+                      client.sendPayload(connected.toList(), Payload.fromBytes(msg.toByteArray()))
+                  }
+              }
+          }
+          FIN_7Q
+          cat > app/src/main/java/com/example/taekwondo/ConfigStore.kt <<'FIN_7Q'
+          package com.example.taekwondo
+          
+          import android.content.Context
+          
+          /** Guarda y carga los ajustes en el teléfono. */
+          class ConfigStore(context: Context) {
+              private val p = context.getSharedPreferences("ajustes", Context.MODE_PRIVATE)
+          
+              fun load(): MatchConfig {
+                  val d = MatchConfig()
+                  return MatchConfig(
+                      redName = p.getString("rn", d.redName) ?: d.redName,
+                      blueName = p.getString("bn", d.blueName) ?: d.blueName,
+                      redColor = p.getLong("rc", d.redColor),
+                      blueColor = p.getLong("bc", d.blueColor),
+                      roundSeconds = p.getInt("rs", d.roundSeconds),
+                      restSeconds = p.getInt("ts", d.restSeconds),
+                      rounds = p.getInt("r", d.rounds),
+                      maxFouls = p.getInt("f", d.maxFouls),
+                      maxPointDiff = p.getInt("pd", d.maxPointDiff),
+                      matchNumber = p.getInt("m", d.matchNumber)
+                  )
+              }
+          
+              fun save(c: MatchConfig) {
+                  p.edit()
+                      .putString("rn", c.redName).putString("bn", c.blueName)
+                      .putLong("rc", c.redColor).putLong("bc", c.blueColor)
+                      .putInt("rs", c.roundSeconds).putInt("ts", c.restSeconds)
+                      .putInt("r", c.rounds).putInt("f", c.maxFouls)
+                      .putInt("pd", c.maxPointDiff).putInt("m", c.matchNumber)
+                      .apply()
+              }
+          }
+          FIN_7Q
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: 8.9
+      - run: gradle assembleDebug
+      - uses: actions/upload-artifact@v4
+        with:
+          name: TKD-01-APK-v6
+          path: app/build/outputs/apk/debug/*.apk
